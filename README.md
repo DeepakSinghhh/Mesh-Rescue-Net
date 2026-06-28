@@ -1,97 +1,202 @@
-📡 EchoChat: The Off-Grid Emergency Bridge
-Smarter Rescue. Zero Infrastructure.
+# 📡 Mesh Rescue Net — *EchoChat*
+### The Off-Grid Emergency Bridge · Smarter Rescue. Zero Infrastructure.
 
-EchoChat is a decentralized, offline communication system designed for disaster zones where cellular towers have failed. Unlike standard mesh apps, EchoChat features "Urgency Intelligence"—a custom protocol that prioritizes life-saving SOS alerts over routine status updates, ensuring medical help arrives first.
+> **Built for HACKSHODH 2026** · CSJM University · Problem Statement PS-04  
+> *Disaster Management · Networking · Mobile Ad-Hoc Networks (MANET)*
 
-🚨 The Problem
-During natural disasters (floods, landslides, earthquakes), cellular infrastructure often fails, isolating victims from rescuers. Existing off-grid solutions operate on a "First-In, First-Out" basis, meaning a critical "Heart Attack" SOS can get stuck behind hundreds of "I'm safe" messages in a congested network.
+---
 
-💡 The Solution: Urgency Intelligence
-EchoChat transforms standard smartphones into a resilient mesh network.
+## 🚨 The Problem
 
-Zero-Infrastructure: Works 100% offline using Bluetooth LE and Wi-Fi Direct.
+During natural disasters — Himachal floods, Kerala landslides, earthquakes — cellular towers fail, leaving victims completely isolated. Existing off-grid mesh apps treat every message equally: a **"Heart Attack — need ambulance"** SOS sits in the same queue as **"I'm hungry"** status updates.
 
-Priority Triage Protocol: A smart algorithm that assigns a "Priority Level" (0-5) to every packet. If the network buffer exceeds 80%, it automatically drops low-priority traffic to ensure SOS signals have zero latency.
+In a congested mesh network with limited battery and bandwidth, that equality is fatal.
 
-Privacy Preserved: Messages "hop" through stranger's phones using Libsodium End-to-End Encryption. Relay nodes forward encrypted data without being able to read it.
+---
 
-⚙️ System Architecture
-1. The Tech Stack
-Language: Kotlin (Native Android)
+## 💡 The Solution
 
-Connectivity: Google Nearby Connections API (Strategy.P2P_CLUSTER)
+**EchoChat** transforms ordinary Android phones into a self-organizing emergency mesh network with one critical differentiator: **Urgency Intelligence**.
 
-Security: Libsodium (Curve25519 Key Exchange + XSalsa20 Encryption)
+A custom Priority Triage Protocol ensures life-critical SOS signals always jump the queue — no internet, no towers, no infrastructure required.
 
-Local DB: SQLite (for offline message persistence)
+---
 
-Cloud Gateway: Supabase/PostgreSQL (for syncing when internet is found)
+## ✨ Key Features
 
-2. The Triage Algorithm (The "Brain")
-The network congestion logic follows a strict hierarchy:
+| Feature | Description |
+|---|---|
+| **Zero Infrastructure** | Works 100% offline using Bluetooth LE + Wi-Fi Direct |
+| **Priority Triage Protocol** | 6-level urgency system; critical SOS is *never* dropped |
+| **Multi-Hop Routing** | Messages hop Phone A → B → C until reaching a gateway node |
+| **TTL Packet Expiry** | Packets expire after N hops to prevent infinite mesh loops |
+| **End-to-End Encryption** | Libsodium (Curve25519 + XSalsa20); relay nodes are blind couriers |
+| **Battery Aware** | BLE for discovery, Wi-Fi Direct for data transfer |
+| **Gateway Sync** | Queued messages auto-upload when satellite/internet is found |
 
-Level 0 (Critical): Medical SOS, Fire, Life-Threatening (Never Dropped).
+---
 
-Level 1 (Urgent): Rescue Team Coordination.
+## ⚙️ Architecture
 
-Level 2 (Routine): "I am safe" Status Updates.
+### Tech Stack
 
-Congestion Rule: If Buffer > 80%, drop all Level > 1. If Buffer = 100% SOS, drop Oldest SOS (Freshness Eviction).
+| Layer | Technology |
+|---|---|
+| Language | Kotlin (Native Android) |
+| Connectivity | Google Nearby Connections API (`Strategy.P2P_CLUSTER`) |
+| Encryption | Libsodium — Curve25519 Key Exchange + XSalsa20 Stream Cipher |
+| Local Storage | SQLite (offline message persistence) |
+| Cloud Gateway | Supabase / PostgreSQL (sync on reconnect) |
+| Min SDK | Android 8.0 (API 26) |
 
-🔒 Security Implementation
-We implement Hybrid Encryption to ensure privacy in the mesh:
+### Mesh Topology
 
-Key Exchange: We use Elliptic Curve Cryptography (Curve25519) to generate a Shared Secret between two devices without transmitting keys.
+```
+[Phone A] ──BLE Discovery──▶ [Phone B (Relay)] ──▶ [Phone C (Gateway)]
+   SOS Packet                  Blind Forward            Internet Upload
+   Priority: 0                 Sees: TargetID +         Decrypts & Routes
+                               Ciphertext only
+```
 
-Stream Encryption: We use XSalsa20 (XOR-based) to encrypt the actual message payload.
+### The Triage Algorithm
 
-Anonymity: Intermediate Relay Nodes see only the TargetID and Ciphertext. They act as blind couriers.
+When network buffer exceeds **80% capacity**, the algorithm kicks in:
 
-🚀 Installation & Setup
-Prerequisites
-Android Studio Iguana or newer.
+```
+Priority Level 0 — CRITICAL     → Medical SOS, Fire, Life-Threatening   [NEVER DROPPED]
+Priority Level 1 — URGENT       → Rescue Team Coordination               [Dropped at 100%]
+Priority Level 2 — ROUTINE      → "I am safe" status updates             [Dropped at 80%]
 
-Minimum SDK: 26 (Android 8.0).
+Congestion Rules:
+  Buffer > 80%  → Drop all Level > 1
+  Buffer = 100% → Drop oldest SOS (Freshness Eviction)
+```
 
-Two or more Android devices (Emulator support for Bluetooth is limited).
+### Security Model
 
-Steps
-Clone the Repo:
+```
+1. Key Exchange   →  Curve25519 ECC generates a Shared Secret (keys never transmitted)
+2. Encryption     →  XSalsa20 stream cipher encrypts the message payload
+3. Relay Nodes    →  See only [TargetID + Ciphertext] — act as blind couriers
+4. Decryption     →  Only the intended recipient can read the message
+```
 
-Bash
-git clone https://github.com/YourUsername/EchoChat-Mesh.git
-Open in Android Studio: Allow Gradle to sync dependencies (including lazysodium-android).
+---
 
-Permissions: On first launch, you MUST grant "Nearby Devices" and "Location" permissions when prompted.
+## 🗂️ Project Structure
 
-Build & Run: Deploy to 2+ physical devices to test the mesh.
+```
+Mesh-Rescue-Net/
+├── app/
+│   └── src/
+│       └── main/
+│           ├── java/          # Kotlin source — mesh logic, triage, encryption
+│           └── res/           # Layouts, drawables, strings
+├── gradle/
+├── build.gradle.kts
+├── settings.gradle.kts
+└── README.md
+```
 
-📱 How to Demo (For Judges)
-Scenario 1: The "Flood" Test (Congestion)
-Connect 2 phones.
+---
 
-Tap the "Simulate Flood" button (Red).
+## 🚀 Getting Started
 
-Observe the "Network Buffer" bar fill up.
+### Prerequisites
 
-Send a "Critical SOS".
+- Android Studio **Iguana** or newer
+- **2 or more physical Android devices** (emulator Bluetooth support is limited)
+- Minimum SDK: **API 26 (Android 8.0)**
 
-Result: The buffer clears the spam, and the SOS arrives instantly.
+### Installation
 
-Scenario 2: The "Blind Relay" (Privacy)
-Setup: Phone A -> Phone B -> Phone C.
+```bash
+# 1. Clone the repository
+git clone https://github.com/DeepakSinghhh/Mesh-Rescue-Net.git
 
-On Phone A, select "Private Mode" and enter Phone C's ID.
+# 2. Open in Android Studio
+# File → Open → select the cloned folder
 
-Send "Secret Message".
+# 3. Let Gradle sync (lazysodium-android will be downloaded automatically)
 
-Result: Phone B's logs show "Relaying Encrypted Packet..." (Payload is unreadable). Phone C receives the decrypted text.
+# 4. Deploy to 2+ physical devices
+# Run → Run 'app' on each device
+```
 
-🔮 Future Roadmap
-Drone Relays: Mounting Gateway Nodes on drones to bridge distant clusters.
+### First Launch
 
-Voice-to-Text SOS: NLP for injured victims who cannot type.
+On first launch, grant the following permissions when prompted:
+- **Nearby Devices** — required for Bluetooth/Wi-Fi mesh
+- **Location** — required by Android for BLE scanning
 
-B2G Integration: API integration with NDRF/SDMA for national disaster response.
+---
 
-Built with ❤️ by Deepak Kr Singh
+## 📱 Demo Scenarios
+
+### Scenario 1 — The "Flood" Test (Priority Triage)
+
+1. Connect 2+ phones to the same mesh session.
+2. Tap the **"Simulate Flood"** button (🔴 Red).
+3. Watch the **Network Buffer** bar fill with low-priority spam.
+4. Send a **Critical SOS** from any device.
+
+**Expected Result:** Buffer drops low-priority traffic instantly; the SOS arrives with zero latency.
+
+---
+
+### Scenario 2 — The "Blind Relay" (End-to-End Encryption)
+
+Setup: **Phone A → Phone B (Relay) → Phone C**
+
+1. On Phone A, select **"Private Mode"** and enter Phone C's device ID.
+2. Send a message: `"Secret: Need insulin at grid B4"`.
+
+**Expected Result:**
+- Phone B logs: `"Relaying Encrypted Packet... [payload unreadable]"`
+- Phone C receives the fully decrypted message.
+
+---
+
+### Scenario 3 — Multi-Hop Routing (Judges' Full Demo)
+
+1. Place Phone A, B, C out of direct range of each other (Phone B in the middle).
+2. Phone A sends an SOS with GPS coordinates.
+3. Phone B relays automatically.
+4. Phone C (Gateway — with internet) uploads the SOS to the cloud dashboard.
+
+---
+
+## 🔮 Future Roadmap
+
+- [ ] **Drone Relay Nodes** — mount gateway phones on UAVs to bridge distant clusters
+- [ ] **Voice-to-Text SOS** — NLP for injured victims who cannot type
+- [ ] **NDRF/SDMA API Integration** — direct pipeline to national disaster response teams
+- [ ] **LoRa Radio Support** — extend mesh range beyond Wi-Fi Direct limits
+- [ ] **Battery Optimization V2** — adaptive scan intervals based on motion sensors
+
+---
+
+## 🏆 Hackathon Context
+
+This project was built for **HACKSHODH 2026**, organized by CSJM University (Student Council · Aatmoday · Innovation Cell · IRAC Cell).
+
+- **Problem Statement:** PS-04 — The Off-Grid Emergency Bridge
+- **Domain:** Disaster Management · MANET · Mobile Networking
+- **Event:** 30–31 January 2026, Kanpur
+
+---
+
+## 👤 Author
+
+**Deepak Kr Singh**  
+[GitHub — @DeepakSinghhh](https://github.com/DeepakSinghhh)
+
+---
+
+## 📄 License
+
+This project is open source and available under the [MIT License](LICENSE).
+
+---
+
+*Built with ❤️ for the people who need help most, when infrastructure fails them.*
