@@ -2,10 +2,13 @@ package com.example.offgridbridge.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
-
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
+// Brutalist Core
+val BrutalBlack = Color(0xFF000000)
+val BrutalWhite = Color(0xFFFFFFFF)
+val BrutalYellow = Color(0xFFFFE500)   // emergency accent
+val BrutalRed = Color(0xFFFF1F1F)      // danger/SOS
+val BrutalGreen = Color(0xFF00FF41)    // connected/safe (matrix green)
+val BrutalGray = Color(0xFF1A1A1A)     // surface
+val BrutalGrayMid = Color(0xFF2E2E2E)  // card background
+val BrutalGrayLight = Color(0xFF888888) // secondary text
+val BrutalOrange = Color(0xFFFF6B00)   // warning

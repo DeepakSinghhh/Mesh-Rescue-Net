@@ -1,7 +1,6 @@
 package com.example.offgridbridge.utils
 
 import android.content.Context
-import android.util.Base64
 import com.goterl.lazysodium.LazySodiumAndroid
 import com.goterl.lazysodium.SodiumAndroid
 import com.goterl.lazysodium.interfaces.Box
@@ -12,9 +11,6 @@ object SecurityManager {
 
     private lateinit var lazySodium: LazySodiumAndroid
     private lateinit var myKeyPair: KeyPair // Holds our Prime-based keys
-
-    // We need a "Nonce" (Number used ONCE) to make the XOR truly random every time.
-    // For this hackathon, we will generate a random one for each message.
 
     fun init(context: Context) {
         lazySodium = LazySodiumAndroid(SodiumAndroid())
@@ -38,21 +34,21 @@ object SecurityManager {
     fun encrypt(message: String, receiverPublicKeyHex: String): String {
         try {
             val receiverKey = Key.fromHexString(receiverPublicKeyHex)
-
-            // Generate a random 24-byte Nonce (Salt)
             val nonce = lazySodium.nonce(Box.NONCEBYTES)
+            val messageBytes = message.toByteArray()
+            val ciphertext = ByteArray(messageBytes.size + Box.MACBYTES)
 
-            // The Magic: "Box Easy" does the Shared Key calc + Encryption in one go.
-            val encryptedBytes = lazySodium.cryptoBoxEasy(
-                message,
+            lazySodium.cryptoBoxEasy(
+                ciphertext,
+                messageBytes,
+                messageBytes.size.toLong(),
                 nonce,
-                receiverKey,             // Their Public Key
-                myKeyPair.secretKey      // My Private Key
+                receiverKey.asBytes,
+                myKeyPair.secretKey.asBytes
             )
 
-            // We must send the Nonce + The Ciphertext together so they can decrypt it
-            // Format: "NONCE:CIPHERTEXT"
-            return lazySodium.toHexStr(nonce) + ":" + encryptedBytes
+            return android.util.Base64.encodeToString(nonce, android.util.Base64.NO_WRAP) + ":" +
+                    android.util.Base64.encodeToString(ciphertext, android.util.Base64.NO_WRAP)
 
         } catch (e: Exception) {
             e.printStackTrace()
@@ -70,18 +66,23 @@ object SecurityManager {
             val parts = encryptedPayload.split(":")
             if (parts.size != 2) return "[Corrupt Message]"
 
-            val nonce = lazySodium.toBin(parts[0])
-            val ciphertext = parts[1] // The hex string of the encrypted message
+            // Correct method to convert hex back to binary in LazySodium 5.x
+            val nonce = android.util.Base64.decode(parts[0], android.util.Base64.NO_WRAP)
+            val ciphertext = android.util.Base64.decode(parts[1], android.util.Base64.NO_WRAP)
             val senderKey = Key.fromHexString(senderPublicKeyHex)
+            val decrypted = ByteArray(ciphertext.size - Box.MACBYTES)
 
-            val decrypted = lazySodium.cryptoBoxOpenEasy(
+            val success = lazySodium.cryptoBoxOpenEasy(
+                decrypted,
                 ciphertext,
+                ciphertext.size.toLong(),
                 nonce,
-                senderKey,               // Their Public Key (Sender)
-                myKeyPair.secretKey      // My Private Key
+                senderKey.asBytes,
+                myKeyPair.secretKey.asBytes
             )
 
-            return decrypted
+            return if (success) String(decrypted) else "[Decryption Failed - Wrong Key]"
+
         } catch (e: Exception) {
             return "[Decryption Failed - Wrong Key]"
         }
