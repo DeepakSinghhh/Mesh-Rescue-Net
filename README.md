@@ -24,12 +24,12 @@
 
 | Splash & Permissions | Main Dashboard | Triage Demo |
 |:---:|:---:|:---:|
-| ![Splash](screenshots/splash.jpg) | ![Dashboard](screenshots/dashboard.jpg) | ![Triage](screenshots/triage.jpg) |
+| ![Splash](screenshots/WhatsApp%20Image%202026-06-29%20at%2010.23.15%20AM.jpeg) | ![Dashboard](screenshots/WhatsApp%20Image%202026-06-29%20at%2010.23.16%20AM.jpeg) | ![Triage](screenshots/WhatsApp%20Image%202026-06-29%20at%2010.23.18%20AM%20(1).jpeg) |
 | Grant Location + Bluetooth + Nearby | NODE ID · PEERS · STATUS | High Priority + Private Mode |
 
 | Receiving Node | Flood Simulation |
 |:---:|:---:|
-| ![Receiver](screenshots/receiver.jpg) | ![Flood](screenshots/flood.jpg) |
+| ![Receiver](screenshots/WhatsApp%20Image%202026-06-29%20at%2010.23.18%20AM.jpeg) | ![Flood](screenshots/WhatsApp%20Image%202026-06-29%20at%2010.23.18%20AM%20(2).jpeg) |
 | SOS received: *"helpp me — GPS(27.51, 83.45)"* | Low Priority Spam 22–29 flushed instantly |
 
 </div>
