@@ -1,6 +1,6 @@
 <div align="center">
 
-# 📡 MESH//RESCUE
+# 📡 MESH//RESCUE NET
 ### *EchoChat — The Off-Grid Emergency Bridge*
 
 **Smarter Rescue. Zero Infrastructure. Every Life Matters.**
